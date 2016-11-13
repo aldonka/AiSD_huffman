@@ -1,5 +1,6 @@
 codes = {}
-
+encoded_size = 0
+file_size = 0
 
 def slicen(s, n, truncate=False):
     assert n > 0
@@ -12,10 +13,17 @@ def slicen(s, n, truncate=False):
 
 def frequency(str):
     freqs = {}
-    # for op, code in slicen(str, 2):
-    #     freqs[op+code] = freqs.get(op+code, 0) + 1
     for ch in str:
         freqs[ch] = freqs.get(ch, 0) + 1
+    return freqs
+
+
+def frequency2(str, group_len):
+    freqs = {}
+    while len(str) > 0:
+        group = str[0:group_len]
+        str = str[group_len:]
+        freqs[group] = freqs.get(group, 0) + 1
     return freqs
 
 
@@ -95,23 +103,29 @@ def count_t(freq_tuple, codes_tuple):
     return t
 
 
-def huffman(l):
-    freq = sort_freq(frequency(l))
+def huffman(l, group_len=1):
+    freq = sort_freq(frequency2(l,group_len))
     tree = build_tree(freq)
     tree_with_codes = assign(tree)
     codes_tuple(tree_with_codes)
     print codes
-    print "T: %d" %count_t(frequency(l), codes)
+    print "T: %d" %count_t(frequency2(l,group_len), codes)
     return tree_with_codes
 
 
-def encode(filename):
+def encode(filename,encoded_filename, group_len=1):
     big_string = read_file(filename)
-    tree_with_codes = huffman(big_string)
+    global file_size
+    file_size = len(big_string)*7
+    tree_with_codes = huffman(big_string, group_len)
     encoded_string = ""
-    for l in big_string:
-        encoded_string += codes[l]
-    new_file = open(filename.replace(".txt", '') + '_encoded.txt', "wb")
+    # for l in big_string:
+    #     encoded_string += codes[l]
+    while len(big_string) > 0:
+        group = big_string[0:group_len]
+        big_string = big_string[group_len:]
+        encoded_string += codes[group]
+    new_file = open(encoded_filename, "wb")
     new_file.write(encoded_string)
     new_file.close()
     return tree_with_codes
@@ -126,8 +140,10 @@ def read_file(filename):
     return data
 
 
-def decode(filename, tree_with_codes):
+def decode(filename, decoded_filename, tree_with_codes):
     encoded_string = read_file(filename)
+    global encoded_size
+    encoded_size = len(encoded_string)
     decoded_string = ""
     t = tree_with_codes
     print tree_with_codes
@@ -137,11 +153,11 @@ def decode(filename, tree_with_codes):
         if type(t[1]) == type(''):
             decoded_string += t[0]
             t = tree_with_codes
-    new_file = open(filename.replace("_encoded.txt", '') + '_decoded.txt', "wb")
+    new_file = open(decoded_filename, "wb")
     new_file.write(decoded_string)
     new_file.close()
 
-n = 'ddomiiin'
+n = 'ddomiiiin'
 # n = 'akkkkkaaaklkhjkhkhjkhkjkhkl$  $z#'
 # freq = frequency(n)
 # print freq
@@ -156,6 +172,10 @@ n = 'ddomiiin'
 # print freq.__len__()
 # print 'Rozmiar %d' % sum
 # print ('Minium ', min)
-print huffman(n)
-decode('seneca_encoded.txt', encode('seneca.txt'))
-# decode('test_encoded.txt', encode('test.txt'))
+# print huffman(n)
+# print huffman(n,2)
+# print huffman(n,3)
+# print huffman(n,4)
+decode('seneca_encoded.txt','seneca_dec.txt', encode('seneca.txt','seneca_encode.txt',1))
+# decode('seneca_encoded.txt', encode('seneca.txt', 2))
+print 'Size file: %d, size encoded: %d, K = %f' %(file_size, encoded_size,((file_size-encoded_size)/float(file_size)))
