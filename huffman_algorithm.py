@@ -115,7 +115,7 @@ def huffman(l, group_len=1):
 
 def encode(filename,encoded_filename, group_len=1):
     big_string = read_file(filename)
-    global file_size
+    global file_size, encoded_size
     file_size = len(big_string)*7
     tree_with_codes = huffman(big_string, group_len)
     encoded_string = ""
@@ -125,6 +125,7 @@ def encode(filename,encoded_filename, group_len=1):
         group = big_string[0:group_len]
         big_string = big_string[group_len:]
         encoded_string += codes[group]
+    encoded_size = len(encoded_string)
     new_file = open(encoded_filename, "wb")
     new_file.write(encoded_string)
     new_file.close()
@@ -142,8 +143,6 @@ def read_file(filename):
 
 def decode(filename, decoded_filename, tree_with_codes):
     encoded_string = read_file(filename)
-    global encoded_size
-    encoded_size = len(encoded_string)
     decoded_string = ""
     t = tree_with_codes
     print tree_with_codes
@@ -176,6 +175,6 @@ n = 'ddomiiiin'
 # print huffman(n,2)
 # print huffman(n,3)
 # print huffman(n,4)
-decode('seneca_encoded.txt','seneca_dec.txt', encode('seneca.txt','seneca_encode.txt',1))
+decode('seneca_encode.txt','seneca_dec.txt', encode('seneca.txt','seneca_encode.txt',4))
 # decode('seneca_encoded.txt', encode('seneca.txt', 2))
 print 'Size file: %d, size encoded: %d, K = %f' %(file_size, encoded_size,((file_size-encoded_size)/float(file_size)))
