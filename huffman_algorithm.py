@@ -1,3 +1,5 @@
+import os
+
 codes = {}
 encoded_size = 0
 file_size = 0
@@ -116,19 +118,19 @@ def huffman(l, group_len=1):
 def encode(filename,encoded_filename, group_len=1):
     big_string = read_file(filename)
     global file_size, encoded_size
-    file_size = len(big_string)*7
+    file_size = os.path.getsize(filename)
     tree_with_codes = huffman(big_string, group_len)
     encoded_string = ""
-    # for l in big_string:
-    #     encoded_string += codes[l]
+
     while len(big_string) > 0:
         group = big_string[0:group_len]
         big_string = big_string[group_len:]
         encoded_string += codes[group]
-    encoded_size = len(encoded_string)
+
     new_file = open(encoded_filename, "wb")
     new_file.write(encoded_string)
     new_file.close()
+    encoded_size = os.path.getsize(new_file)
     return tree_with_codes
 
 
