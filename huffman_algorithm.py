@@ -130,7 +130,7 @@ def encode(filename,encoded_filename, group_len=1):
     new_file = open(encoded_filename, "wb")
     new_file.write(encoded_string)
     new_file.close()
-    encoded_size = os.path.getsize(new_file)
+    encoded_size = os.path.getsize(encoded_filename)
     return tree_with_codes
 
 
